@@ -10,6 +10,7 @@ kx=symbols("k_x",cls=Symbol,real=True)
 ky=symbols("k_y",cls=Symbol,real=True)
 m=symbols("m",cls=Symbol,positive=True)
 ma=symbols("m_a",cls=Symbol,positive=True)
+theta_a=symbols("theta_a",cls=Symbol,positive=True)
 
 sigma_0=Matrix(
  [[1,0],
@@ -31,44 +32,104 @@ sigma_z=Matrix(
      [0,-1]]
 )
 
+#|k|
 k_abs=sqrt(kx**2+ky**2)
 
+#h0
 h0=eps_k*sigma_0-vR*ky*sigma_x+vR*kx*sigma_y+(eps_L+eps_k_a)*sigma_z
 
+#cos(theta_k)
 cos_theta_k=kx/k_abs*sign(vR)
 
+#sin(theta_k)
 sin_theta_k=ky/k_abs*sign(vR)
 
+#dcos(theta_k)/dkx
 d_cos_theta_k_d_kx=diff(cos_theta_k,kx)
 
+#dcos(theta_k)/dky
 d_cos_theta_k_d_ky=diff(cos_theta_k,ky)
 
+#dsin(theta_k)/dkx
 d_sin_theta_k_d_kx=diff(sin_theta_k,kx)
 
+#dsin(theta_k)/dky
 d_sin_theta_k_d_ky=diff(sin_theta_k,ky)
 
+#theta_k computed from arccos
 theta_k=acos(cos_theta_k)# in [0,pi]
+
+#cos(2theta_k)
 cos_2_theta_k=2*cos_theta_k**2-1
-# sin_2_theta_k=sin(2*theta_k)
+
+#sin(2theta_k)
 sin_2_theta_k=2*sin_theta_k*cos_theta_k
+
+#dcos(2theta_k)/dkx
 d_cos_2_theta_k_d_kx=diff(cos_2_theta_k,kx)
 
+#dcos(2theta_k)/dky
 d_cos_2_theta_k_d_ky=diff(cos_2_theta_k,ky)
 
+#dsin(2theta_k)/dkx
 d_sin_2_theta_k_d_kx=diff(sin_2_theta_k,kx)
 
+#dsin(2theta_k)/dky
 d_sin_2_theta_k_d_ky=diff(sin_2_theta_k,ky)
 
+#d|k|/dkx
 d_k_abs_d_kx=diff(k_abs,kx)
+
+#d|k|/dky
 d_k_abs_d_ky=diff(k_abs,ky)
 
+#eps_k's value
 eps_k_val=hbar**2/(2*m)*k_abs**2
 
+#d eps_k/dkx
 d_eps_k_d_kx=diff(eps_k_val,kx)
 
+#d eps_k/dky
 d_eps_k_d_ky=diff(eps_k_val,ky)
 
-rhs=hbar**2/(m)*ky
-df=d_eps_k_d_ky-rhs
+#cos(theta_a)
+cos_theta_a=cos(theta_a)
 
-pprint(df)
+#sin(theta_a)
+sin_theta_a=sin(theta_a)
+
+#cos(2theta_k-theta_a)
+cos_2theta_k_minus_theta_a=cos_2_theta_k*cos_theta_a+sin_2_theta_k*sin_theta_a
+
+#d cos(2theta_k-theta_a)/dkx
+d_cos_2theta_k_minus_theta_a_dkx=diff(cos_2theta_k_minus_theta_a,kx)
+
+#d cos(2theta_k-theta_a)/dky
+d_cos_2theta_k_minus_theta_a_dky=diff(cos_2theta_k_minus_theta_a,ky)
+
+#cos(2theta_k-theta_a)
+
+cos_2theta_k_minus_theta_a=cos_2_theta_k*cos_theta_a+sin_2_theta_k*sin_theta_a
+
+eps_k_a_val=hbar**2*k_abs**2/(2*ma)*cos_2theta_k_minus_theta_a
+
+# d epsilon_ka/dkx
+d_eps_k_a_d_kx=diff(eps_k_a_val,kx)
+
+# d epsilon_ka/dky
+d_eps_k_a_d_ky=diff(eps_k_a_val,ky)
+
+# v_{x,k}^{0}
+v_xk_0=1/hbar*diff(eps_k_val,kx)*sigma_0+1/hbar*vR*sigma_y+1/hbar*diff(eps_k_a_val,kx)*sigma_z
+
+#v_{y,k}^{0}
+v_yk_0=1/hbar*diff(eps_k_val,ky)*sigma_0-1/hbar*vR*sigma_x+1/hbar*diff(eps_k_a_val,ky)*sigma_z
+
+rhs=Matrix(
+    [
+        [sin_theta_a/ma*hbar*kx+(1/m-cos_theta_a/ma)*hbar*ky,-1/hbar*vR],
+        [-1/hbar*vR,-sin_theta_a/ma*hbar*kx+(1/m+cos_theta_a/ma)*hbar*ky]
+    ]
+)
+df=v_yk_0-rhs
+pprint(simplify(df))
