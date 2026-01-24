@@ -2,6 +2,8 @@ import os
 os.environ['TERM'] = 'xterm-256color'
 from sympy import  *
 from sympy.physics.units import hbar
+from sympy.simplify.fu import TR5, TR11
+
 eps_k=symbols("epsilon_k",cls=Symbol,real=True)
 vR=symbols("v_R",cls=Symbol,real=True,nonzero=True)
 eps_L=symbols("epsilon_L",cls=Symbol,real=True)
@@ -111,6 +113,7 @@ d_cos_2theta_k_minus_theta_a_dky=diff(cos_2theta_k_minus_theta_a,ky)
 
 cos_2theta_k_minus_theta_a=cos_2_theta_k*cos_theta_a+sin_2_theta_k*sin_theta_a
 
+#value of epsilon_{k}^{a}
 eps_k_a_val=hbar**2*k_abs**2/(2*ma)*cos_2theta_k_minus_theta_a
 
 # d epsilon_ka/dkx
@@ -125,11 +128,13 @@ v_xk_0=1/hbar*diff(eps_k_val,kx)*sigma_0+1/hbar*vR*sigma_y+1/hbar*diff(eps_k_a_v
 #v_{y,k}^{0}
 v_yk_0=1/hbar*diff(eps_k_val,ky)*sigma_0-1/hbar*vR*sigma_x+1/hbar*diff(eps_k_a_val,ky)*sigma_z
 
-rhs=Matrix(
-    [
-        [sin_theta_a/ma*hbar*kx+(1/m-cos_theta_a/ma)*hbar*ky,-1/hbar*vR],
-        [-1/hbar*vR,-sin_theta_a/ma*hbar*kx+(1/m+cos_theta_a/ma)*hbar*ky]
-    ]
-)
-df=v_yk_0-rhs
-pprint(simplify(df))
+# Ek
+# 对根式内部进行通分
+Ek_inner = vR**2*k_abs**2+(eps_L+eps_k_a_val)**2
+Ek_inner_together = expand(together(Ek_inner))
+Ek = sqrt(Ek_inner_together)
+
+#cos(alpha_k)
+cos_alpha_k=(eps_L+eps_k_a_val)/Ek
+h0_val=eps_k_val*sigma_0-vR*ky*sigma_x+vR*kx*sigma_y+(eps_L+eps_k_a_val)*sigma_z
+
