@@ -136,5 +136,35 @@ Ek = sqrt(Ek_inner_together)
 
 #cos(alpha_k)
 cos_alpha_k=(eps_L+eps_k_a_val)/Ek
-h0_val=eps_k_val*sigma_0-vR*ky*sigma_x+vR*kx*sigma_y+(eps_L+eps_k_a_val)*sigma_z
+#sin(alpha_k)
+sin_alpha_k=abs(vR)/Ek*k_abs
+#sin(alpha_k/2)
+sin_alpha_k_over_2=sqrt((Ek-eps_L-eps_k_a_val)/(2*Ek))
+#cos(alpha_k/2)
+cos_alpha_k_over_2=sqrt((Ek+eps_L+eps_k_a_val)/(2*Ek))
 
+
+
+half=Rational(1,2)
+
+# v_{x,k}^{0e}
+
+v_xk_0e_00=((1/m+cos_theta_a/ma)*hbar*kx+sin_theta_a/ma*hbar*ky)*(half+half*cos_alpha_k)\
+    +1/hbar*sin_alpha_k*cos_alpha_k\
+    +((1/m-cos_theta_a/ma)*hbar*kx-sin_theta_a/ma*hbar*ky)*(half-half*cos_alpha_k)
+
+
+v_xk_0e_01=half*((1/m+cos_theta_a/ma)*hbar*kx+sin_theta_a/ma*hbar*ky)*sin_alpha_k\
+    -half*((1/m-cos_theta_a/ma)*hbar*kx-sin_theta_a/ma*hbar*ky)*sin_alpha_k\
+    -I*1/hbar*vR*sin_theta_k-1/hbar*vR*cos_alpha_k*cos_theta_k
+
+v_xk_0e_10=half*((1/m+cos_theta_a/ma)*hbar*kx+sin_theta_a/ma*hbar*ky)*sin_alpha_k\
+    -half*((1/m-cos_theta_a/ma)*hbar*kx-sin_theta_a/ma*hbar*ky)*sin_alpha_k\
+    +I*1/hbar*vR*sin_theta_k-1/hbar*vR*cos_alpha_k*cos_theta_k
+
+v_xk_0e_11=((1/m+cos_theta_a/ma)*hbar*kx+sin_theta_a/ma*hbar*ky)*(half-half*cos_alpha_k)\
+    -1/hbar*vR*sin_alpha_k*cos_theta_k\
+    +((1/m-cos_theta_a/ma)*hbar*kx-sin_theta_a/ma*hbar*ky)*(half+half*cos_alpha_k)
+
+
+v_xk_0e_mat=Matrix([[v_xk_0e_00,v_xk_0e_01],[v_xk_0e_10,v_xk_0e_11]])
