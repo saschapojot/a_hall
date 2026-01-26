@@ -1,4 +1,5 @@
 from sympy import *
+from sympy import expand_complex
 from sympy.simplify.fu import TR5, TR11, TR9,fu
 from sympy.physics.units import hbar
 
@@ -91,3 +92,28 @@ v_yk_0e_11=(sin(theta_a)/ma*hbar*kx+(1/m-cos(theta_a)/ma)*hbar*ky)*(half-half*co
 v_yk_0e_mat=Matrix([[v_yk_0e_00,v_yk_0e_01],[v_yk_0e_10,v_yk_0e_11]])
 
 
+
+A1=hbar/ma*sin(alpha_k)*(sin(theta_a)*kx-cos(theta_a)*ky)\
+   *(hbar/ma*sin(alpha_k)*(cos(theta_a)*kx+sin(theta_a)*ky)-I*1/hbar*vR*sin(theta_k)-1/hbar*vR*cos(alpha_k)*cos(theta_k))
+
+A2=-I*1/hbar*vR*cos(theta_k)\
+    *(hbar/ma*sin(alpha_k)*(cos(theta_a)*kx+sin(theta_a)*ky)-I*1/hbar*vR*sin(theta_k)-1/hbar*vR*cos(alpha_k)*cos(theta_k))
+
+A3=-1/hbar*vR*cos(alpha_k)*sin(theta_k)\
+  *(hbar/ma*sin(alpha_k)*(cos(theta_a)*kx+sin(theta_a)*ky)-I*1/hbar*vR*sin(theta_k)-1/hbar*vR*cos(alpha_k)*cos(theta_k))
+
+
+A11=hbar**2/(2*ma**2)*sin(2*theta_a)*(sin(alpha_k))**2*kx**2\
+    -hbar**2/ma**2*cos(2*theta_a)*(sin(alpha_k))**2*kx*ky\
+    -hbar**2/(2*ma**2)*sin(2*theta_a)*(sin(alpha_k))**2*ky**2
+
+A12=I*vR/ma*cos(theta_a)*sin(alpha_k)*sin(theta_k)*kx\
+    -I*vR/ma*cos(theta_a)*sin(alpha_k)*sin(theta_k)*ky
+
+A13=-vR/(2*ma)*sin(theta_a)*sin(2*alpha_k)*cos(theta_k)*kx\
+    +vR/(2*ma)*cos(theta_a)*sin(2*alpha_k)*cos(theta_k)*ky
+
+
+df=expand_complex(A1-A11-A12-A13)
+
+pprint(simplify(expand(TR11(TR5(df)))))
