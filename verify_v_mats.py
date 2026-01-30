@@ -165,11 +165,13 @@ B32=-I*vR**2/hbar**2*cos(alpha_k)*sin(theta_k)**2
 
 B33=vR**2/(2*hbar**2)*cos(alpha_k)**2*sin(2*theta_k)
 
-lhs=A12-B12
+lhs=v_yk_0e_10*v_xk_0e_01-v_yk_0e_01*v_xk_0e_10
 
-rhs=-I*2*vR/ma*sin(theta_a)*sin(alpha_k)*sin(theta_k)*kx\
-    +I*2*vR/ma*cos(theta_a)*sin(alpha_k)*sin(theta_k)*ky
+rhs=-I*2*vR/ma*sin(alpha_k)*(sin(theta_a)*sin(theta_k)+cos(theta_a)*cos(theta_k))*kx\
+    +I*2*vR/ma*sin(alpha_k)*(cos(theta_a)*sin(theta_k)-sin(theta_a)*cos(theta_k))*ky\
+    +I*2*vR**2/hbar**2*cos(alpha_k)
 
 df=fu(lhs-rhs)
 
-pprint(simplify(df))
+pprint(simplify(expand(df)))
+
