@@ -170,3 +170,26 @@ v_xk_0e_11=((1/m+cos_theta_a/ma)*hbar*kx+sin_theta_a/ma*hbar*ky)*(half-half*cos_
 v_xk_0e_mat=Matrix([[v_xk_0e_00,v_xk_0e_01],[v_xk_0e_10,v_xk_0e_11]])
 
 
+v_yk_0e_00=(half+half*cos_alpha_k)*(sin(theta_a)/ma*hbar*kx+(1/m-cos(theta_a)/ma)*hbar*ky)\
+    +1/hbar*vR*sin_alpha_k*sin_theta_k\
+    +(-sin(theta_a)/ma*hbar*kx+(1/m+cos(theta_a)/ma)*hbar*ky)*(half-half*cos_alpha_k)
+
+v_yk_0e_01=hbar/ma*sin_alpha_k*(sin(theta_a)*kx-cos(theta_a)*ky)+I*1/hbar*vR*cos_theta_k-1/hbar*vR*cos_alpha_k*sin_theta_k
+
+
+v_yk_0e_10=hbar/ma*sin_alpha_k*(sin(theta_a)*kx-cos(theta_a)*ky)-I*1/hbar*vR*cos_theta_k-1/hbar*vR*cos_alpha_k*sin_theta_k
+
+v_yk_0e_11=(sin(theta_a)/ma*hbar*kx+(1/m-cos(theta_a)/ma)*hbar*ky)*(half-half*cos_alpha_k)-1/hbar*vR*sin_alpha_k*sin_theta_k\
+    +(-sin(theta_a)/ma*hbar*kx+(1/m+cos(theta_a)/ma)*hbar*ky)*(half+half*cos_alpha_k)
+
+
+lhs=v_yk_0e_10*v_xk_0e_01-v_yk_0e_01*v_xk_0e_10
+
+
+rhs=-I*4*vR/ma*sin(theta_a)*sin_alpha_k*kx*ky/k_abs*sign(vR)\
+    +I*2*vR/ma*cos(theta_a)*sin_alpha_k*(ky**2-kx**2)/k_abs*sign(vR)
+
+
+df=fu(expand_complex(lhs-rhs))
+
+pprint(simplify(expand(df)))
