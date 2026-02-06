@@ -11,8 +11,10 @@ ky=symbols("k_y",cls=Symbol,real=True)
 m=symbols("m",cls=Symbol,positive=True)
 ma=symbols("m_a",cls=Symbol,positive=True)
 theta_a=symbols("theta_a",cls=Symbol,positive=True)
-vR=symbols("v_R",cls=Symbol,real=True,nonzero=True)
+vR=symbols("v_R",cls=Symbol,positive=True,nonzero=True)
 Ek=symbols("Ek",cls=Symbol,positive=True)
+a0=symbols("a0",cls=Symbol,positive=True)
+rho=symbols("rho",cls=Symbol,positive=True)
 
 a00,a01,a10,a11=symbols("a00,a01,a10,a11",cls=Symbol,real=True)
 
@@ -77,12 +79,32 @@ v_yk_0e_11=(sin(theta_a)/ma*hbar*kx+(1/m-cos(theta_a)/ma)*hbar*ky)*(half-half*co
 
 
 
-lhs=v_yk_0e_10*v_xk_0e_01-v_yk_0e_01*v_xk_0e_10
-
-rhs=-I*4*vR**2/ma*sin(theta_a)*kx*ky/Ek+I*2*vR**2/ma*cos(theta_a)*(ky**2-kx**2)/Ek+I*2*vR**2/hbar**2*cos(alpha_k)
+half=Rational(1,2)
 
 
+# Define the function g1
+g1 = hbar**2/(2*m)*rho**2 - sqrt(a0**2 + vR**2*rho**2)
 
-df=lhs-rhs
+# Calculate the derivative
+lhs = diff(g1, (rho, 1))
 
-pprint(simplify(expand(df)))
+print("Original Derivative:")
+pprint(lhs)
+
+# Define the substitution value
+# We assume m*vR > hbar^2 for the root to be real
+val = sqrt(m**2*vR**4-a0**2*hbar**4)/(vR*hbar**2)
+
+# Perform substitution
+result = lhs.subs(rho, val)
+
+# 2. Use cancel() to force combination of fractions
+# cancel() puts the expression in the form P/Q
+combined_result = cancel(result)
+
+print("\nResult after substitution and cancel() (Combined):")
+pprint(combined_result)
+
+# Optional: Try to simplify further to see if it is 0
+print("\nFully Simplified:")
+pprint(simplify(combined_result))
