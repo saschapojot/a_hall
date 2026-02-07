@@ -96,7 +96,7 @@ def plot_plot_large_abs_vR_with_muF(vR,a0):
     if np.abs(a0) == 0:
         raise ValueError("a0 is 0")
     rho_solution = rho_positive(vR, a0)
-    rho_range = np.linspace(0, 2.5 * rho_solution, 300)
+    rho_range = np.linspace(0, 2.7 * rho_solution, 300)
     out_dir = "./large_abs_vR/"
     Path(out_dir).mkdir(exist_ok=True, parents=True)
     #  horizontal line values
@@ -112,7 +112,7 @@ def plot_plot_large_abs_vR_with_muF(vR,a0):
     muF_list = [g1_min, (g1_min + minus_abs_a0) / 2, minus_abs_a0, (minus_abs_a0 + abs_a0) / 2, abs_a0, abs_a0 + 1]
     for counter, muF in enumerate(muF_list):
         fig, ax = plt.subplots(1, 1, figsize=(5, 5))
-        ax.set_title(r"General Case ($|a_0|\neq 0$), $v_{R}^{2}>\frac{|a_0|\hbar^2}{m}$, "+fr"$\mu_F{counter}$")
+        ax.set_title(r"General Case ($|a_0|\neq 0$), $v_{R}^{2}>\frac{|a_0|\hbar^2}{m}$, " + fr"$\mu_{{F{counter}}}$")
         ax.set_xlabel(r"$\rho$")
         ax.set_ylabel("Energy")
         ax.grid(True, linestyle='--', alpha=0.6)
