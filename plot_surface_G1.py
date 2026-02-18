@@ -28,7 +28,6 @@ def calculate_G1(rho, gamma):
 
     term3 = prefactor * fraction * cosine_term
 
-    # We subtract term3 to ensure cos=1 is a minimum (most negative contribution)
     return term1 - term2 - term3
 
 
@@ -50,11 +49,8 @@ rho_c_n1 = rho10 + 1/ma * rho11_n1  # saddle
 rho_c_n2 = rho10 + 1/ma * rho11_n2  # min
 
 # Angular Locations based on user input:
-# Minima at n=0 and n=2
 gamma_min_n0 = 0.5 * theta_a + 0.5 * n0 * np.pi  # n=0
 gamma_min_n2 = 0.5 * theta_a + 0.5 * n2 * np.pi  # n=2
-
-# Saddle at n=1
 gamma_saddle_n1 = 0.5 * theta_a + 0.5 * n1 * np.pi  # n=1
 
 # Calculate Z values for markers
@@ -64,17 +60,15 @@ z_saddle_n1 = calculate_G1(rho_c_n1, gamma_saddle_n1)
 
 # --- 4. Generate Mesh Data ---
 resolution = 100
-
 rho_max = max(rho_c_n0, rho_c_n1, rho_c_n2)
 
 # Rho range
 rho_range = np.linspace(0, 1.5 * rho_max, resolution)
 
-# Gamma range: Changed to 0 to 2*pi
+# Gamma range: 0 to 2*pi
 angle_range = np.linspace(0, 2 * np.pi, resolution)
 
 # Create 2D Meshgrids
-# Note: We must pass the 1D arrays to meshgrid to create the 2D grid
 R, G = np.meshgrid(rho_range, angle_range)
 Z = calculate_G1(R, G)
 
@@ -84,11 +78,11 @@ fig = go.Figure()
 # 1. Add the Surface Plot
 fig.add_trace(go.Surface(
     z=Z,
-    x=R,  # Use the meshgrid R (or rho_range if dimensions match, but meshgrid is safer)
-    y=G,  # Use the meshgrid G
+    x=R,
+    y=G,
     colorscale='Viridis',
     opacity=0.9,
-    colorbar=dict(title='Energy (G1)'),
+    colorbar=dict(title='Energy'),
     contours={
         "z": {"show": True, "usecolormap": True, "highlightcolor": "limegreen", "project": {"z": True}}
     }
@@ -101,9 +95,11 @@ fig.add_trace(go.Scatter3d(
     z=[z_min_n0],
     mode='markers+text',
     marker=dict(size=6, color='red', symbol='circle'),
-    text=["Min (n=0)"],
+    text=["Min"],
     textposition="top center",
-    name='Min (n=0)'
+    textfont=dict(color='red'),  # MODIFICATION: Set text color to red
+    name='Min (n=0)',
+    showlegend=False
 ))
 
 # 3. Add Marker: Saddle Point (n=1)
@@ -113,9 +109,11 @@ fig.add_trace(go.Scatter3d(
     z=[z_saddle_n1],
     mode='markers+text',
     marker=dict(size=6, color='orange', symbol='diamond'),
-    text=["Saddle (n=1)"],
+    text=["Saddle"],
     textposition="top center",
-    name='Saddle (n=1)'
+    textfont=dict(color='orange'),  # MODIFICATION: Set text color to orange
+    name='Saddle (n=1)',
+    showlegend=False
 ))
 
 # 4. Add Marker: Minimum 2 (n=2)
@@ -125,24 +123,29 @@ fig.add_trace(go.Scatter3d(
     z=[z_min_n2],
     mode='markers+text',
     marker=dict(size=6, color='red', symbol='circle'),
-    text=["Min (n=2)"],
+    text=["Min"],
     textposition="top center",
-    name='Min (n=2)'
+    textfont=dict(color='red'),  # MODIFICATION: Set text color to red
+    name='Min (n=2)',
+    showlegend=False
 ))
 
 # 5. Layout Configuration
 fig.update_layout(
-    title='G1 Potential Surface: Minima (n=0, 2) and Saddle (n=1)',
+    title='G1 Potential Surface',
     width=1200,
     height=800,
     scene=dict(
         xaxis_title='Rho (ρ)',
         yaxis_title='Gamma (γ)',
         zaxis_title='Energy G1(ρ, γ)',
-        # Explicitly setting the range for the Y-axis (Gamma)
-        yaxis=dict(range=[0, 2 * np.pi]),
+        yaxis=dict(
+            range=[0, 2 * np.pi],
+            tickvals=[0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi],
+            ticktext=["0", "π/2", "π", "3π/2", "2π"]
+        ),
         camera=dict(
-            eye=dict(x=1.8, y=0.5, z=0.8)  # Side view to see the topology clearly
+            eye=dict(x=1.8, y=0.5, z=0.8)
         ),
         aspectratio=dict(x=1, y=1, z=0.6)
     ),
