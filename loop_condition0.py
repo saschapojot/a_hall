@@ -22,7 +22,7 @@ ma_val = mp.mpf('200.0')
 theta_a_val = 0.1 * mp.pi
 
 # Placeholder (will be set in loop)
-beta_val = mp.mpf('1000.0')
+
 
 # ---------------------------------------------------------
 # 3. Physics Calculations
@@ -34,6 +34,8 @@ muF = (hbar_val ** 2 / (2 * m_val)) * (rho10_val ** 2) - (m_val * vR_val ** 2) /
 
 rho11_n0_val_np = float(a0_val / (2 * vR_val ** 3) * (m_val ** 2 * vR_val ** 4 + a0_val ** 2 * hbar_val ** 4) / \
                         mp.sqrt(m_val ** 2 * vR_val ** 4 - a0_val ** 2 * hbar_val ** 4) * mp.sign(vR_val))
+
+
 
 # ---------------------------------------------------------
 # 4. Helper Functions
@@ -86,7 +88,7 @@ def integrand_I12(rho, gamma):
 # 5. Execution Loop
 # ---------------------------------------------------------
 
-beta_list = [10,50,100, 500, 1000, 2000, 5000, 10000]
+beta_list = [10,50,100, 500,1000]
 
 print(f"{'Beta':<10} | {'Sigma Num':<25} | {'Asymp Val':<25} | {'Rel Error':<25}")
 print("-" * 90)
