@@ -16,8 +16,8 @@ a0_val = mp.mpf('1.1')
 m_val = mp.mpf('1.2')
 vR_val = mp.mpf('2.0')
 e_val = mp.mpf('-1.0')
-ma_val = mp.mpf('100.0')
-beta_val = mp.mpf('2500.0')
+ma_val = mp.mpf('200.0')
+beta_val = mp.mpf('1000.0')
 theta_a_val = 0.1 * mp.pi
 
 # ---------------------------------------------------------
@@ -131,7 +131,7 @@ print(f"Raw Integral: {raw_I11}")
 print(f"Value I11 (coeff of i): {val_I11}")
 
 # 3. Compute I12 (Raw Integral part)
-print("\nComputing I12 raw integral (cos(alpha)/Ek^2)...")
+print("\nComputing I12 raw integral (a0/Ek^3)...")
 raw_I12 = mp.quad(integrand_I12, [0, rho10_val, mp.inf], [0, 2 * mp.pi], method='tanh-sinh')
 # Apply prefactor: i * (vR^2 / 2hbar^2)
 pref_I12 = (vR_val ** 2 / (2 * hbar_val ** 2))
@@ -149,12 +149,12 @@ rho11_n0_val_np = float(a0_val / (2 * vR_val ** 3) * (m_val ** 2 * vR_val ** 4 +
                         mp.sqrt(m_val ** 2 * vR_val ** 4 - a0_val ** 2 * hbar_val ** 4) * mp.sign(vR_val))
 
 asymp_val_np = np.sqrt(2) * float(e_val) ** 2 * np.log(2) / (4 * np.pi * float(beta_val)) * \
-               float(a0_val) ** (1.5) * float(m_val) ** 2 * float(ma_val) ** 0.5 * float(rho10_val) ** (-1.5) * \
+               float(a0_val) ** (1.5) * float(m_val) ** 2 * float(ma_val) ** 0.5 * float(rho10_val) ** (-2) * \
                (1 / (float(m_val) ** 3 * float(vR_val) ** 2) * float(rho10_val) -
                 3 * float(hbar_val) ** 4 / (float(ma_val) * float(m_val) ** 5 * float(vR_val) ** 4) * float(
                            rho10_val) ** 2 * rho11_n0_val_np +
                 1 / (float(ma_val) * float(m_val) ** 3 * float(vR_val) ** 2) * rho11_n0_val_np)
-asymp_val_np/=mp.sqrt(2)
+
 print("-" * 40)
 print("FINAL COMPONENT BREAKDOWN (Coefficients of 'i'):")
 print("-" * 40)
