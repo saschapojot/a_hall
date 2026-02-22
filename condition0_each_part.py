@@ -5,7 +5,7 @@ from datetime import datetime
 # ---------------------------------------------------------
 # 1. Setup High Precision
 # ---------------------------------------------------------
-mp.dps = 50  # 50 decimal digits of precision
+mp.dps =80 # 50 decimal digits of precision
 mp.pretty = True
 
 # ---------------------------------------------------------
