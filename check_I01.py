@@ -63,14 +63,14 @@ def I01_integrand_exact(rho, gamma, beta, muF):
     """Exact integrand for I01 in polar coords, Eq. (207)."""
     val = rho**3 * fk0(rho, gamma, beta, muF) * np.cos(2 * gamma) / Ek(rho, gamma)**3
     val *= 1j * vR**2 / (2 * ma) * np.cos(theta_a)
-    return val
+    return -val
 
 # --- Asymptotic Part 1: 1D integrand with w00, Eq. (209) first term / Eq. (210) ---
 
 def I01_integrand_asymp_part1(rho, beta, muF):
     leading = vR**2 * rho**2 + a0**2
     part1 = rho**5 * leading**(-5 / 2) * w00(rho, beta, muF)
-    part1 *= -1 / ma**2 * 1j * 3 / 4 * vR**2 * a0 * hbar**2 * np.pi * np.cos(theta_a)**2
+    part1 *= 1 / ma**2 * 1j * 3 / 4 * vR**2 * a0 * hbar**2 * np.pi * np.cos(theta_a)**2
     return part1
 
 # --- Asymptotic Part 2: delta function evaluation, Eq. (211) ---
@@ -94,7 +94,7 @@ def I01_part2_asymp(beta, muF):
     rho0 = get_rho0(muF)
     leading = vR**2 * rho0**2 + a0**2
     val = rho0**3 * leading**(-3 / 2) * c0(rho0) * 1 / drho_g0(rho0)
-    val *= -1 / ma**2 * 1j * 1 / 2 * np.pi * vR**2 * np.cos(theta_a)**2
+    val *= 1 / ma**2 * 1j * 1 / 2 * np.pi * vR**2 * np.cos(theta_a)**2
     return val
 
 # --- Also keep part 2 as a 1D integral with beta*w01 for cross-check ---
@@ -103,7 +103,7 @@ def I01_integrand_asymp_part2_finite_beta(rho, beta, muF):
     """Second term of Eq. (209) as a 1D integrand (finite beta)."""
     leading = vR**2 * rho**2 + a0**2
     part2 = rho**3 * leading**(-3 / 2) * w01(rho, beta, muF) * c0(rho)
-    part2 *= -1 / ma**2 * 1j * 1 / 2 * beta * np.pi * vR**2 * np.cos(theta_a)**2
+    part2 *= 1 / ma**2 * 1j * 1 / 2 * beta * np.pi * vR**2 * np.cos(theta_a)**2
     return part2
 
 # --- Integration Routines ---
@@ -197,4 +197,4 @@ for beta in betas:
     err_d = abs(I01_num - I01_delta) / denom
     err_f = abs(I01_num - I01_finite) / denom
 
-    print(f"")
+    print(f"I01_num/I01_delta={I01_num/I01_delta}")
