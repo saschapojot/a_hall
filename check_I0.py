@@ -301,7 +301,7 @@ def compare_integrals_I0_subtracted(h=1e-5):
     Compares the exact and asymptotic integrals after subtracting
     the dominant asymptotic term from both.
     """
-    beta = 10000.0  # Changed back to 1000.0 to match the first function
+    beta = 100000.0  # Changed back to 1000.0 to match the first function
     muF = 1.5
     rho0 = get_rho0(muF)
 
