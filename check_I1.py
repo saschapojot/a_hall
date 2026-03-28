@@ -131,94 +131,122 @@ def I1_integrand_dominant_asymp(rho):
     return val
 
 def I1_integrand_asymp_part0(rho):
-    leading = vR**2 * rho**2 + a0**2
-    val=rho**5*leading**(-5/2)
-    val*=1j*1/ma**2*3/16*np.pi*vR**2*a0*hbar**2
+    leading = vR ** 2 * rho ** 2 + a0 ** 2
+    val = rho ** 5 * leading ** (-5 / 2)
+    val *= 1 / ma ** 2 * 1j * 3 / 4 * np.pi * vR ** 2 * np.sin(theta_a) ** 2 * a0 * hbar ** 2
     return val
-
 
 def I1_integrand_asymp_part1(rho):
     leading = vR**2 * rho**2 + a0**2
-    val=rho**5*leading**(-7/2)
-    val*=1j*1/ma**2*15/16*np.pi*a0**3*vR**2*hbar**2
+    val = rho**5 * leading**(-5/2)
+    val *= 1/ma**2 * 1j * 3/4 * vR**2 * a0 * hbar**2 * np.pi * np.cos(theta_a)**2
+    return val
+
+def I1_integrand_asymp_part2(rho):
+    leading = vR**2 * rho**2 + a0**2
+    val1=-3*rho**5*leading**(-5/2)
+    val2=15*a0**2*rho**5*leading**(-7/2)
+    val=val1+val2
+    val*=1j*1/ma**2*1/16*np.pi*a0*vR**2*hbar**2
+    return val
+
+
+def I1_integrand_asymp_part3(rho):
+    leading = vR**2 * rho**2 + a0**2
+    val=rho**5*leading**(-5/2)
+    val*=-1j*1/ma**2*3/8*np.pi*vR**2*a0*hbar**2
     return val
 
 def I1_integrand_asymp(rho):
-    return I1_integrand_asymp_part0(rho)+I1_integrand_asymp_part1(rho)+ I1_integrand_dominant_asymp(rho)
+    return I1_integrand_dominant_asymp(rho)+ I1_integrand_asymp_part0(rho)+I1_integrand_asymp_part1(rho)\
+            +I1_integrand_asymp_part2(rho)+I1_integrand_asymp_part3(rho)
 
 
-def I1_asymp_val0(muF):
+
+
+
+def I1_aymp_val0(muF):
     rho1=get_rho1(muF)
-    leading = vR ** 2 * rho1 ** 2 + a0 ** 2
-    val=rho1**3*c1(rho1)*leading**(-3/2)
-    val*=1/drho_g1(rho1)
-    val*=-1j*1/ma**2*1/4*np.pi*vR**2*np.cos(2*theta_a)
+    leading = vR**2 * rho1**2 + a0**2
+    val=rho1**3*leading**(-3/2)*c1(rho1)*1/drho_g1(rho1)
+    val*=1/ma**2*1j*1/2*np.pi*vR**2*np.sin(theta_a)**2
     return val
 
 
 def I1_asymp_val1(muF):
-    rho1=get_rho1(muF)
-    leading = vR ** 2 * rho1 ** 2 + a0 ** 2
-    val=c1(rho1)*rho1**3*leading**(-5/2)
-    val*=1/drho_g1(rho1)
-    val*=1/ma**2*1j*3/4*np.pi*a0**2*vR**2
+    rho1 = get_rho1(muF)
+    leading = vR**2 * rho1**2 + a0**2
+    val = rho1**3 * leading**(-3/2) * c1(rho1) * 1/drho_g1(rho1)
+    val *= 1/ma**2 * 1j * 1/2 * np.pi * vR**2 * np.cos(theta_a)**2
     return val
 
+
+def I1_asymp_val2(muF):
+    rho1=get_rho1(muF)
+    leading = vR**2 * rho1**2 + a0**2
+    val=rho1**3*c1(rho1)*leading**(-5/2)*1/drho_g1(rho1)
+    val*=1j*1/ma**2*3/4*np.pi*a0**2*vR**2
+    return val
+
+
 def F(rho):
-    """
-    The function inside the derivative for Eq. 222:
-    F(rho) = [ rho * (vR^2 * rho^2 + a0^2)^{-3/2} * c1(rho)^2 ] / [ drho_g1(rho) ]
-    """
-    leading = vR**2 * rho**2 + a0**2
-    numerator = rho * (leading**(-1.5)) * (c1(rho)**2)
+    leading = vR ** 2 * rho ** 2 + a0 ** 2
+    numerator = rho * (leading ** (-1.5)) * (c1(rho) ** 2)
     denominator = drho_g1(rho)
     return numerator / denominator
+
 
 def dF(rho, h=1e-5):
     return (F(rho + h) - F(rho - h)) / (2.0 * h)
 
 
-def I1_asymp_val2(muF,h=1e-5):
+def I1_asymp_val3(muF,h=1e-5):
     rho1=get_rho1(muF)
-    # leading = vR ** 2 * rho1 ** 2 + a0 ** 2
-    val=dF(rho1,h)
-    val*=1/drho_g1(rho1)
-    val*=1/ma**2*1j*1/4*np.pi*a0*vR**2/hbar**2
-    return val
+    leading = vR**2 * rho1**2 + a0**2
+    val1=dF(rho1,h)
+    val1*=1/drho_g1(rho1)
+    val1*=1j*1/ma**2*np.pi*a0*vR**2/(4*hbar**2)
+
+    val2=rho1*leading**(-3/2)*d1(rho1)
+    val2*=-1j*1/ma**2*np.pi*a0*vR**2/(2*hbar**2)*1/drho_g1(rho1)
+    return val1+val2
 
 
-def I1_asymp_val3(muF):
+def I1_asymp_val4(muF):
     rho1=get_rho1(muF)
-    leading = vR ** 2 * rho1 ** 2 + a0 ** 2
-    val=1/drho_g1(rho1)*d1(rho1)*rho1*leading**(-3/2)
-    val*=-1/ma**2*1j*a0*vR**2/(2*hbar**2)*np.pi
+    leading = vR**2 * rho1**2 + a0**2
+    val=rho1**3*leading**(-3/2)*c1(rho1)*1/drho_g1(rho1)
+    val*=-1j*1/ma**2*1/4*np.pi*vR**2
     return val
 
 
 def I1_asymp_direct(muF,h=1e-5):
-    return I1_asymp_val0(muF)+I1_asymp_val1(muF)+I1_asymp_val2(muF,h)+I1_asymp_val3(muF)
+    return I1_aymp_val0(muF)+I1_asymp_val1(muF)+I1_asymp_val2(muF)\
+            +I1_asymp_val3(muF,h)+I1_asymp_val4(muF)
+
 
 def I1_integrand_exact(rho, gamma, beta, muF):
-    kx = rho * np.cos(gamma)
-    ky = rho * np.sin(gamma)
-    Ek_val = Ek(rho, gamma)
-    cos_alpha_k = (a0 + hbar ** 2 / (2 * ma) * (kx ** 2 + ky ** 2) * np.cos(2 * gamma - theta_a)) / Ek_val
+    kx=rho*np.cos(gamma)
+    ky=rho*np.sin(gamma)
+    Ek_val=Ek(rho, gamma)
 
-    part1 = -1j * 4 * vR ** 2 / ma * np.sin(theta_a) * kx * ky / Ek_val
+    cos_alpha_k=(a0+hbar**2/(2*ma)*(kx**2+ky**2)*np.cos(2*gamma-theta_a))/Ek_val
+    part1=-1j*4*vR**2/ma*np.sin(theta_a)*kx*ky/Ek_val
 
-    part2 = 1j * 2 * vR ** 2 / ma * np.cos(theta_a) * (ky ** 2 - kx ** 2) / Ek_val
+    part2=1j*2*vR**2/ma*np.cos(theta_a)*(ky**2-kx**2)/Ek_val
 
-    part3 = 1j * 2 * vR ** 2 / hbar ** 2 * cos_alpha_k
-    val = fk1(rho, gamma, beta, muF) * (part1 + part2 + part3) / (4 * Ek_val ** 2)
+    part3=1j*2*vR**2/hbar**2*cos_alpha_k
+
+    val=fk1(rho, gamma, beta, muF)* (part1+part2+part3)/(4*Ek_val**2)
     return val
 
-# --- Comparison Logic ---
 
 def compare_integrals_I1(h=1e-5):
     beta = 100.0
     muF = 1.5
     rho1 = get_rho1(muF)
-    print(f"=== TOTAL I0 Comparison ===")
+
+    print(f"=== TOTAL I1 Comparison ===")
     print(f"beta = {beta}, muF = {muF}, rho1 = {rho1:.6f}")
 
     # 1. Exact 2D Integral
@@ -226,8 +254,9 @@ def compare_integrals_I1(h=1e-5):
         # Multiply by rho for the polar coordinate area element (rho d_rho d_gamma)
         return np.imag(I1_integrand_exact(rho, gamma, beta, muF) * rho)
 
-    # The Fermi function fk0 decays exponentially for rho > rho1.
+    # The Fermi function fk1 decays exponentially for rho > rho1.
     upper_limit_rho = rho1 + 0.1
+
     exact_val, exact_err = dblquad(
         exact_imag,
         0, upper_limit_rho,
@@ -247,24 +276,32 @@ def compare_integrals_I1(h=1e-5):
 
     # 3. Direct Asymptotic Boundary Terms
     asymp_dir_val = np.imag(I1_asymp_direct(muF, h))
+
     # Total Asymptotic Value
     total_asymp_val = asymp_int_val + asymp_dir_val
+
     # Print Results
     abs_diff = abs(exact_val - total_asymp_val)
     rel_diff = abs_diff / abs(total_asymp_val) if total_asymp_val != 0 else float('inf')
+
     print(f"Exact Integral:           {exact_val:.10e}")
     print(f"Asymp Integral Part:      {asymp_int_val:.10e}")
     print(f"Asymp Direct Part:        {asymp_dir_val:.10e}")
     print(f"Total Asymptotic:         {total_asymp_val:.10e}")
     print(f"Absolute Difference:      {abs_diff:.10e}")
     print(f"Relative Difference:      {rel_diff:.10e}")
-    print(f"Ratio (Exact/Asymp):      {exact_val / total_asymp_val:.10e}\n")
+    print(f"Ratio (Exact/Asymp):      {exact_val/total_asymp_val:.10e}\n")
 
 
 def compare_integrals_I1_subtracted(h=1e-5):
+    """
+    Compares the exact and asymptotic integrals after subtracting
+    the dominant asymptotic term from both.
+    """
     beta = 100000.0
     muF = 1.5
     rho1 = get_rho1(muF)
+
     print(f"=== SUBTRACTED I1 Comparison (Without Dominant Term) ===")
     print(f"beta = {beta}, muF = {muF}, rho1 = {rho1:.6f}")
 
@@ -274,12 +311,12 @@ def compare_integrals_I1_subtracted(h=1e-5):
 
     upper_limit_rho = rho1 + 0.1
 
-    # Use nquad instead of dblquad to pass higher limits to BOTH integrals
-    opts = {'limit': 2000, 'epsabs': 1e-8, 'epsrel': 1e-8}
+    # Using nquad with increased limit to prevent IntegrationWarning
+    options = {'limit': 500, 'epsabs': 1e-10, 'epsrel': 1e-10}
     exact_val, exact_err = nquad(
         exact_imag,
         [[0, 2 * np.pi], [0, upper_limit_rho]],
-        opts=[opts, opts]
+        opts=[options, options]
     )
 
     # 2. Integral of the Dominant Asymptotic Term (Must stop exactly at rho0)
@@ -289,7 +326,7 @@ def compare_integrals_I1_subtracted(h=1e-5):
     dom_val, dom_err = quad(
         dom_asymp_imag,
         0, rho1,
-        epsabs=1e-10, epsrel=1e-10
+        epsabs=1e-10, epsrel=1e-10, limit=500
     )
 
     # 3. Asymptotic 1D Integral (Full) (Must stop exactly at rho0)
@@ -299,7 +336,7 @@ def compare_integrals_I1_subtracted(h=1e-5):
     asymp_int_val, asymp_int_err = quad(
         asymp_imag,
         0, rho1,
-        epsabs=1e-10, epsrel=1e-10
+        epsabs=1e-10, epsrel=1e-10, limit=500
     )
 
     # 4. Direct Asymptotic Boundary Terms
