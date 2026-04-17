@@ -171,44 +171,15 @@ half=Rational(1,2)
 
 
 y,muF=symbols("y,mu_F",cls=Symbol,positive=True)
-y=1/ma*c0*cos(2*gamma-theta_a)+1/ma**2*d0*(cos(2*gamma-theta_a))**2
-z=1/ma*c1*cos(2*gamma-theta_a)+1/ma**2*d1*(cos(2*gamma-theta_a))**2
+
+Delta=vR**4+2*muF*hbar**2/m*vR**2+a0**2*hbar**4/m**2
+sm=muF*hbar**2/m+vR**2+sqrt(Delta)
+rho1=sqrt(2*m**2/hbar**4*sm)
 
 
+lhs=hbar**2/(2*m)*rho1**2-muF
 
-leading=beta*g0-beta*muF
+rhs=sqrt(a0**2+vR**2*rho1**2)
+df=lhs-rhs
 
-w00=1/(exp(leading)+1)
-
-w01=exp(leading)/(exp(leading)+1)**2
-
-w02=(exp(2*leading)-exp(leading))/(exp(leading)+1)**3
-
-leading1=beta*g1-beta*muF
-w10=1/(exp(leading1)+1)
-w11=exp(leading)/(exp(leading)+1)**2
-w12=(exp(2*leading)-exp(leading))/(exp(leading)+1)**3
-
-f1=1/(exp(beta*g1))
-rhs=w10-1/ma*beta*w11*c1*cos(2*gamma-theta_a)+1/ma**2*(half*beta**2*w12*c1**2-beta*w11*d1)*(cos(2*gamma-theta_a))**2
-
-
-
-df=f1-rhs
-
-# --- FIX START ---
-# Use a dummy variable for series expansion to avoid NotImplementedError
-# caused by positive=True assumption on eps in nested exponents.
-eps_dummy = symbols("eps_dummy", real=True)
-
-# Substitute eps with the dummy variable
-df_dummy = df.subs(eps, eps_dummy)
-
-# Perform the series expansion on the dummy variable
-val_dummy = df_dummy.series(eps_dummy, 0, 2)
-
-# Substitute the dummy variable back to eps for the final result
-val = val_dummy.subs(eps_dummy, eps)
-# --- FIX END ---
-
-pprint(simplify(val))
+pprint(simplify(df))
