@@ -81,14 +81,21 @@ integrand_sigma=(fk0-fk1)*(v_yk_0e_10*v_xk_0e_01- v_yk_0e_01*v_xk_0e_10)/(epsilo
 
 # Define the numerical values in a dictionary
 # Note: Since ma = 1/eps, substituting eps will automatically evaluate ma
+eV= 1.602176634e-19
+meV=eV*0.001
+h=6.62607015e-34
+a=3.5e-10
 subs_dict = {
-    hbar: 1.1,
-    m: 0.9,
-    eps: 1/20,
-    vR: 2.0,
-    a0: 0.5,
-    muF: 1.5
+    hbar: 6.62607015e-34/(2*np.pi),
+    m: 9.1093837e-31,
+    eps: 1/(5*9.1093837e-31),
+    vR: 12*meV*a,
+    a0: 0.1*meV,
+    muF: 3*meV
 }
+# Substitute the numerical values into the integrand
+e=-1.602176634e-19
+unit=e**2/h
 def sigma_analytical(subs_dict):
     muF_val = subs_dict[muF]
     m_val = subs_dict[m]
@@ -100,8 +107,8 @@ def sigma_analytical(subs_dict):
     sigma=I0_minus_I1*1j*e**2*subs_dict[hbar]/(4*np.pi**2)
     return sigma
 
-# Substitute the numerical values into the integrand
-e=-1
+
+
 integrand_sigma_num = integrand_sigma.subs(subs_dict)*1j*e**2*subs_dict[hbar]/(4*np.pi**2)
 # Simplify the result (optional, but recommended for cleaner expressions)
 # integrand_sigma_num = simplify(integrand_sigma_num)
@@ -142,7 +149,9 @@ def get_rho1(subs_dict):
 rho0=get_rho0(subs_dict)
 rho1=get_rho1(subs_dict)
 
-beta_val = 100.0
+kB=1.380649e-23
+T=0.01
+beta_val = 1/(kB*T)
 
 
 
@@ -153,7 +162,7 @@ from scipy import integrate
 theoretical_value = np.real(sigma_analytical(subs_dict))
 
 # --- Loop and Plotting Setup ---
-num_points = 30
+num_points = 300
 theta_a_array = np.linspace(0, 2 * np.pi, num_points)
 real_integrals = []
 print(f"Starting integration over a circle of radius rho_max = {rho_max:.4f}...")
@@ -171,7 +180,7 @@ for i, ta_val in enumerate(theta_a_array):
         polar_integrand_real,
         0, 2 * np.pi,
         lambda phi: 0, lambda phi: rho_max,
-        epsabs=1e-4, epsrel=1e-4
+        epsabs=1e-12, epsrel=1e-12
     )
 
     real_integrals.append(integral_real)
@@ -180,10 +189,11 @@ for i, ta_val in enumerate(theta_a_array):
 print("\nIntegration complete! Generating plot...")
 # --- Plotting ---
 plt.figure(figsize=(8, 5))
-plt.plot(theta_a_array, real_integrals, marker='o', linestyle='-', color='b', label=r'Numerical Re($\sigma$)')
+real_integrals=np.array(real_integrals)
+plt.scatter(theta_a_array, real_integrals/unit, marker='.', color='b', label=r'Numerical Re($\sigma$)')
 
 # Add the theoretical value as a horizontal line
-plt.axhline(y=theoretical_value, color='r', linestyle='--', linewidth=2, label=rf'Theoretical Re($\sigma$) = {theoretical_value:.4e}')
+plt.axhline(y=theoretical_value/unit, color='r', linestyle='--', linewidth=2, label=rf'Theoretical Re($\sigma$) = {theoretical_value/unit:.4e}')
 
 plt.xlabel(r'$\theta_a$ (radians)', fontsize=12)
 plt.ylabel(r'Re($\sigma$)', fontsize=12)
