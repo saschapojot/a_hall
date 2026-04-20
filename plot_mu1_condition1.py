@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 # --- 1. Physics Parameters (Common to both) ---
 hbar = 1.0
 m = 1.0
-ma = 2.0
+ma = 10
 vR = 2.0
 a0 = 0.5
 theta_a = 0.1 * np.pi
@@ -82,7 +82,9 @@ Z1 = calculate_G1(R1, G1)
 
 G1_min=calculate_G1(rho_c_n0, gamma_min_n0)
 G1_saddle=calculate_G1(rho_c_n1, gamma_saddle_n1)
-mu1=1/2*(G1_min+G1_saddle)
+print(f"G1_min={G1_min}")
+
+mu1=1/2*G1_min
 plane_height=mu1
 
 # Create meshgrid for the plane covering the entire plot area

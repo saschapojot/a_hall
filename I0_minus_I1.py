@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.integrate import quad, dblquad
 
-hbar = 1
-m = 1.0
+hbar = 1.1
+m = 0.9
 ma = 20.0
 vR = 2.0
 a0 = 0.5
@@ -203,41 +203,28 @@ def I1_integrand_dominant_asymp(rho):
     val*=1j*a0*vR**2/hbar**2*np.pi
     return val
 
+def integrand_term_55(rho):
+    leading = vR**2 * rho**2 + a0**2
+    val=rho**5*leading**(-5/2)
+    val*=1/ma**2*1j*3/16*np.pi*vR**2*a0*hbar**2
+    return np.imag(val)
+
+
 muF = 1.5
 rho0=get_rho0(muF)
 rho1=get_rho1(muF)
 
-# 1. Numerical Evaluation of Integrals
-# Since the integrand returns a purely imaginary number, we integrate the imaginary part
-# and then multiply by 1j to avoid scipy quad warnings with complex types.
-I0_imag_val, _ = quad(lambda r: I0_integrand_dominant_asymp(r).imag, 0, rho0)
-I1_imag_val, _ = quad(lambda r: I1_integrand_dominant_asymp(r).imag, 0, rho1)
-I0_num = I0_imag_val * 1j
-I1_num = I1_imag_val * 1j
 
-integral_diff = I0_num - I1_num
+val=muF*hbar**2+m*vR**2
 
-# 2. Algebraic Expression Evaluation
-# Formula: -i * (pi * a0 / hbar^2) * (2 * m * vR^2) / (2 * m * vR^2 * muF + a0^2 * hbar^2)
-numerator = 2 * m * vR**2
-denominator = 2 * m * vR**2 * muF + a0**2 * hbar**2
-algebraic_val = -1j * (np.pi * a0 / hbar**2) * (numerator / denominator)
+lhs=rho0**10+rho1**10
 
-# 3. Output Results
-print("=== Verification of I0 - I1 ===")
-print(f"muF  = {muF}")
-print(f"rho0 = {rho0:.6f}")
-print(f"rho1 = {rho1:.6f}")
-print("-" * 40)
-print(f"Numerical Integral (I0 - I1): {integral_diff}")
-print(f"Algebraic Expression:         {algebraic_val}")
+rhs=1024*m**5/hbar**20*val**5-1280*m**5/hbar**16*(muF**2-a0**2)*val**3\
+    +320*m**5/hbar**12*(muF**2-a0**2)**2*val
 
-error = abs(integral_diff - algebraic_val)
-print(f"Absolute Difference:          {error:.4e}")
+df=lhs-rhs
 
-if error < 1e-10:
-    print("\nSUCCESS: The numerical integral matches the algebraic expression!")
-else:
-    print("\nWARNING: The values do not match.")
+print(df)
+
 
 

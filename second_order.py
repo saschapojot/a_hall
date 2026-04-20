@@ -1,5 +1,6 @@
 from sympy import *
 from sympy.physics.units import hbar
+import numpy as np
 
 # Define symbols
 b0,b1,b2=symbols("b0,b1,b2",cls=Symbol,positive=True)
@@ -21,7 +22,6 @@ a00,a01,a10,a11=symbols("a00,a01,a10,a11",cls=Symbol,real=True)
 
 # Note: This overwrites the previous definition of eps.
 # The 'positive=True' assumption here is the root cause of the series error later.
-eps=symbols("epsilon",cls=Symbol,positive=True)
 
 beta=symbols("beta",cls=Symbol,positive=True)
 e=symbols("e",cls=Symbol,real=True)
@@ -189,26 +189,14 @@ w10=1/(exp(leading1)+1)
 w11=exp(leading)/(exp(leading)+1)**2
 w12=(exp(2*leading)-exp(leading))/(exp(leading)+1)**3
 
-f1=1/(exp(beta*g1))
-rhs=w10-1/ma*beta*w11*c1*cos(2*gamma-theta_a)+1/ma**2*(half*beta**2*w12*c1**2-beta*w11*d1)*(cos(2*gamma-theta_a))**2
+fk0=1/(exp(beta*G0-beta*muF)+1)
 
 
 
-df=f1-rhs
+e2=vR**2*rho**2+a0**2
 
-# --- FIX START ---
-# Use a dummy variable for series expansion to avoid NotImplementedError
-# caused by positive=True assumption on eps in nested exponents.
-eps_dummy = symbols("eps_dummy", real=True)
 
-# Substitute eps with the dummy variable
-df_dummy = df.subs(eps, eps_dummy)
+f=cos(2*gamma-theta_a)**2
+val=integrate(f,(gamma,0,2*pi))
 
-# Perform the series expansion on the dummy variable
-val_dummy = df_dummy.series(eps_dummy, 0, 2)
-
-# Substitute the dummy variable back to eps for the final result
-val = val_dummy.subs(eps_dummy, eps)
-# --- FIX END ---
-
-pprint(simplify(val))
+pprint(val)

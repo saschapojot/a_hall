@@ -6,11 +6,13 @@ def f(x):
 
 x_range_0=np.linspace(0,1,100)
 x_range_1=np.linspace(0.5,1,100)
+x_range_2=np.linspace(-1,-0.5,100)
 
 y_range_0=f(x_range_0)
 y_range_1=f(x_range_1)
+y_range_2=f(x_range_2)
 # Create a figure with two subplots side by side (1 row, 2 columns)
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig, axes = plt.subplots(1, 3, figsize=(12, 6))
 # Plot 1: Full Range (0 to 1)
 axes[0].plot(x_range_0, y_range_0, color='blue', label='Range [0, 1]')
 axes[0].set_ylabel('h(x)')
@@ -45,10 +47,31 @@ axes[1].axvline(x=1, color='black', linestyle='--', linewidth=1)
 # Placed slightly lower (-0.25) to account for the 'x' label on this plot
 axes[1].text(0.5, -0.25, '(b)', transform=axes[1].transAxes,
              ha='center', va='top', fontsize=14, color='black')
-# Optional: Set consistent y-axis limits to make visual comparison easier
-# The max y is 1 (at x=0) and min y is 0 (at x=1)
+
+
+# Plot 3: Partial Range (-1 to -0.5)
+axes[2].plot(x_range_2, y_range_2, color='green', label='Range [-1, -0.5]')
+axes[2].set_xlabel('x')
+axes[2].set_ylabel('h(x)')
+axes[2].grid(True)
+axes[2].set_xticks([]) # Remove standard ticks
+axes[2].set_yticks([]) # Remove standard ticks
+# Label 'a' at x=-1 (first value)
+axes[2].text(-1, -0.15, 'a', ha='center', va='top', fontsize=12, color='black')
+axes[2].axvline(x=-1, color='black', linestyle='--', linewidth=1)
+# Label 'b' at x=-0.5 (last value, where function is maximum)
+axes[2].text(-0.5, -0.15, 'b', ha='center', va='top', fontsize=12, color='black')
+axes[2].axvline(x=-0.5, color='black', linestyle='--', linewidth=1)
+axes[2].set_title(r"$h^{'}(b)>0$")
+# Add Figure Label (c)
+axes[2].text(0.5, -0.25, '(c)', transform=axes[2].transAxes,
+             ha='center', va='top', fontsize=14, color='black')
+
+# Set consistent y-axis limits to make visual comparison easier
 axes[0].set_ylim(-0.1, 1.1)
 axes[1].set_ylim(-0.1, 1.1)
+axes[2].set_ylim(-0.1, 1.1)
+
 plt.tight_layout()
 plt.savefig("laplace.png")
 plt.close()
