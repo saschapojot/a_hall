@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.integrate import quad, dblquad
 
-hbar = 1.1
-m = 0.9
+hbar = 1.2
+m = 1.0
 ma = 20.0
 vR = 2.0
 a0 = 0.5
@@ -203,28 +203,8 @@ def I1_integrand_dominant_asymp(rho):
     val*=1j*a0*vR**2/hbar**2*np.pi
     return val
 
-def integrand_term_55(rho):
-    leading = vR**2 * rho**2 + a0**2
-    val=rho**5*leading**(-5/2)
-    val*=1/ma**2*1j*3/16*np.pi*vR**2*a0*hbar**2
-    return np.imag(val)
-
-
 muF = 1.5
 rho0=get_rho0(muF)
 rho1=get_rho1(muF)
 
-
-val=muF*hbar**2+m*vR**2
-
-lhs=rho0**10+rho1**10
-
-rhs=1024*m**5/hbar**20*val**5-1280*m**5/hbar**16*(muF**2-a0**2)*val**3\
-    +320*m**5/hbar**12*(muF**2-a0**2)**2*val
-
-df=lhs-rhs
-
-print(df)
-
-
-
+def

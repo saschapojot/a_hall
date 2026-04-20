@@ -1,6 +1,5 @@
 from sympy import *
 from sympy.physics.units import hbar
-import numpy as np
 
 # Define symbols
 b0,b1,b2=symbols("b0,b1,b2",cls=Symbol,positive=True)
@@ -22,6 +21,7 @@ a00,a01,a10,a11=symbols("a00,a01,a10,a11",cls=Symbol,real=True)
 
 # Note: This overwrites the previous definition of eps.
 # The 'positive=True' assumption here is the root cause of the series error later.
+eps=symbols("epsilon",cls=Symbol,positive=True)
 
 beta=symbols("beta",cls=Symbol,positive=True)
 e=symbols("e",cls=Symbol,real=True)
@@ -171,32 +171,15 @@ half=Rational(1,2)
 
 
 y,muF=symbols("y,mu_F",cls=Symbol,positive=True)
-y=1/ma*c0*cos(2*gamma-theta_a)+1/ma**2*d0*(cos(2*gamma-theta_a))**2
-z=1/ma*c1*cos(2*gamma-theta_a)+1/ma**2*d1*(cos(2*gamma-theta_a))**2
+
+Delta=vR**4+2*muF*hbar**2/m*vR**2+a0**2*hbar**4/m**2
+sm=muF*hbar**2/m+vR**2+sqrt(Delta)
+rho1=sqrt(2*m**2/hbar**4*sm)
 
 
+lhs=hbar**2/(2*m)*rho1**2-muF
 
-leading=beta*g0-beta*muF
+rhs=sqrt(a0**2+vR**2*rho1**2)
+df=lhs-rhs
 
-w00=1/(exp(leading)+1)
-
-w01=exp(leading)/(exp(leading)+1)**2
-
-w02=(exp(2*leading)-exp(leading))/(exp(leading)+1)**3
-
-leading1=beta*g1-beta*muF
-w10=1/(exp(leading1)+1)
-w11=exp(leading)/(exp(leading)+1)**2
-w12=(exp(2*leading)-exp(leading))/(exp(leading)+1)**3
-
-fk0=1/(exp(beta*G0-beta*muF)+1)
-
-
-
-e2=vR**2*rho**2+a0**2
-
-
-f=cos(2*gamma-theta_a)**2
-val=integrate(f,(gamma,0,2*pi))
-
-pprint(val)
+pprint(simplify(df))

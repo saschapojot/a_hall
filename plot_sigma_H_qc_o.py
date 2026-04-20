@@ -3,6 +3,8 @@ from sympy import expand_complex
 from sympy.simplify.fu import TR5, TR11, TR9,fu
 from sympy.physics.units import hbar
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 alpha_k=symbols("alpha_k",cls=Symbol,real=True)
 theta_k=symbols("theta_k",cls=Symbol,real=True)
@@ -79,14 +81,21 @@ integrand_sigma=(fk0-fk1)*(v_yk_0e_10*v_xk_0e_01- v_yk_0e_01*v_xk_0e_10)/(epsilo
 
 # Define the numerical values in a dictionary
 # Note: Since ma = 1/eps, substituting eps will automatically evaluate ma
+eV= 1.602176634e-19
+meV=eV*0.001
+h=6.62607015e-34
+a=3.5e-10
 subs_dict = {
-    hbar: 1.1,
-    m: 0.9,
-    eps: 1/20,
-    vR: 2.0,
-    a0: 0.5,
-    muF: 1.5
+    hbar: 6.62607015e-34/(2*np.pi),
+    m: 9.1093837e-31,
+    eps: 1/(5*9.1093837e-31),
+    vR: 12*meV*a,
+    a0: 0.1*meV,
+    muF: 3*meV
 }
+# Substitute the numerical values into the integrand
+e=-1.602176634e-19
+unit=e**2/h
 def sigma_analytical(subs_dict):
     muF_val = subs_dict[muF]
     m_val = subs_dict[m]
@@ -98,8 +107,8 @@ def sigma_analytical(subs_dict):
     sigma=I0_minus_I1*1j*e**2*subs_dict[hbar]/(4*np.pi**2)
     return sigma
 
-# Substitute the numerical values into the integrand
-e=-1
+
+
 integrand_sigma_num = integrand_sigma.subs(subs_dict)*1j*e**2*subs_dict[hbar]/(4*np.pi**2)
 # Simplify the result (optional, but recommended for cleaner expressions)
 # integrand_sigma_num = simplify(integrand_sigma_num)
@@ -140,50 +149,61 @@ def get_rho1(subs_dict):
 rho0=get_rho0(subs_dict)
 rho1=get_rho1(subs_dict)
 
-beta_val = 100.0
-theta_a_val = 0.5 * np.pi
+kB=1.380649e-23
+T=0.01
+beta_val = 1/(kB*T)
+
 
 
 # Determine the maximum radius for the integration domain
 rho_max = max(rho0, rho1)
 from scipy import integrate
 
-# Define the integrands in polar coordinates (kx = r*cos(phi), ky = r*sin(phi))
-# Note: We multiply by 'r' which is the Jacobian determinant for polar coordinates.
-def polar_integrand_real(r, phi):
-    kx_val = r * np.cos(phi)
-    ky_val = r * np.sin(phi)
-    val = integrand_func(kx_val, ky_val, theta_a_val, beta_val)
-    return np.real(val) * r
+theoretical_value = np.real(sigma_analytical(subs_dict))
 
-def polar_integrand_imag(r, phi):
-    kx_val = r * np.cos(phi)
-    ky_val = r * np.sin(phi)
-    val = integrand_func(kx_val, ky_val, theta_a_val, beta_val)
-    return np.imag(val) * r
-
-
+# --- Loop and Plotting Setup ---
+num_points = 300
+theta_a_array = np.linspace(0, 2 * np.pi, num_points)
+real_integrals = []
 print(f"Starting integration over a circle of radius rho_max = {rho_max:.4f}...")
+print(f"Calculating for {num_points} values of theta_a from 0 to 2*pi.\n")
 
-# scipy.integrate.dblquad signature: func(y, x), [x_min, x_max], [y_min(x), y_max(x)]
-# Let x = phi (0 to 2*pi) and y = r (0 to rho_max)
-integral_real, error_real = integrate.dblquad(
-    polar_integrand_real,
-    0, 2 * np.pi,                  # phi limits
-    lambda phi: 0, lambda phi: rho_max  # r limits
+for i, ta_val in enumerate(theta_a_array):
+    def polar_integrand_real(r, phi):
+        kx_val = r * np.cos(phi)
+        ky_val = r * np.sin(phi)
+        val = integrand_func(kx_val, ky_val, ta_val, beta_val)
+        return np.real(val) * r
+
+
+    integral_real, error_real = integrate.dblquad(
+        polar_integrand_real,
+        0, 2 * np.pi,
+        lambda phi: 0, lambda phi: rho_max,
+        epsabs=1e-12, epsrel=1e-12
+    )
+
+    real_integrals.append(integral_real)
+    print(f"Step {i + 1}/{num_points} | theta_a = {ta_val:.3f} rad | Real Integral = {integral_real:.6e}")
+
+print("\nIntegration complete! Generating plot...")
+# --- Plotting ---
+plt.figure(figsize=(8, 5))
+real_integrals=np.array(real_integrals)
+plt.scatter(theta_a_array, real_integrals/unit, marker='.', color='b', label=r'Numerical Re($\sigma$)')
+
+# Add the theoretical value as a horizontal line
+plt.axhline(y=theoretical_value/unit, color='r', linestyle='--', linewidth=2, label=rf'Theoretical Re($\sigma$) = {theoretical_value/unit:.4e}')
+
+plt.xlabel(r'$\theta_a$ (radians)', fontsize=12)
+plt.ylabel(r'Re($\sigma$)', fontsize=12)
+plt.title(r'Real part of the Integral vs $\theta_a$', fontsize=14)
+plt.xticks(
+    [0, np.pi/2, np.pi, 3*np.pi/2, 2*np.pi],
+    ['0', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$']
 )
-
-integral_imag, error_imag = integrate.dblquad(
-    polar_integrand_imag,
-    0, 2 * np.pi,                  # phi limits
-    lambda phi: 0, lambda phi: rho_max  # r limits
-)
-
-# Combine the results
-total_integral = integral_real + 1j * integral_imag
-
-print(f"Integration complete!")
-print(f"Real part:      {integral_real:.8e} (Estimated error: {error_real:.2e})")
-print(f"Imaginary part: {integral_imag:.8e} (Estimated error: {error_imag:.2e})")
-print(f"Total Integral: {total_integral}")
-print(sigma_analytical(subs_dict))
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.legend()
+plt.tight_layout()
+plt.savefig("sigma.png")
+plt.close()
