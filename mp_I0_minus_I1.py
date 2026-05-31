@@ -1,9 +1,9 @@
 from mpmath import mp
 
 # Set the desired precision (number of decimal places)
-mp.dps = 100
+mp.dps = 50
 
-hbar = mp.mpf('0.1')
+hbar = mp.mpf('1.2')
 m = mp.mpf('1.0')
 ma = mp.mpf('20.0')
 vR = mp.mpf('2.0')
@@ -27,9 +27,12 @@ def g0(rho):
     part2 = mp.sqrt(vR**2 * rho**2 + a0**2)
     return part1 + part2
 
+
 def dg0(rho):
-    """Derivative of g0 with respect to rho, Eq. (164)."""
     return hbar**2 / m * rho + vR**2 * rho * (a0**2 + vR**2 * rho**2)**(-mp.mpf('0.5'))
+
+def dg1(rho):
+    return hbar**2 / m * rho - vR**2 * rho * (a0**2 + vR**2 * rho**2)**(-mp.mpf('0.5'))
 
 
 def G1(rho, gamma):
@@ -199,26 +202,51 @@ def get_rho1_sq(muF):
     return max(rho1_sq, mp.mpf('0.0'))
 
 muF = mp.mpf('1.5')
-rho0_sq = get_rho0_sq(muF)
-rho1_sq = get_rho1_sq(muF)
+rho0 = get_rho0(muF)
+rho1 = get_rho1(muF)
+factor1=muF*hbar**2+m*vR**2
+factor2=muF**2-a0**2
 
 
-# Use mp.power for exponents to prevent ANY standard Python float casting
-lhs_part1 = mp.mpf('0.5') * mp.power(hbar, 4) * rho0_sq - (mp.power(hbar, 2) * m * muF + mp.power(m, 2) * mp.power(vR, 2))
-lhs_part2 = mp.mpf('0.5') * mp.power(hbar, 4) * rho1_sq - (mp.power(hbar, 2) * m * muF + mp.power(m, 2) * mp.power(vR, 2))
-lhs_part3 = mp.power(mp.power(a0, 2) + mp.power(vR, 2) * rho0_sq, 3)
-lhs_part4 = mp.power(mp.power(a0, 2) + mp.power(vR, 2) * rho1_sq, 3)
+# --- LHS Functions ---
 
-lhs = lhs_part1 * lhs_part2 * lhs_part3 * lhs_part4
+def term0(rho):
+    leading = vR**2 * rho**2 + a0**2
+    return rho * c0(rho)**2 * leading**(-mp.mpf('1.5')) / dg0(rho)
 
-rhs_part1 = mp.power(m, 2) * mp.power(hbar, 4) * (mp.power(muF, 2) - mp.power(a0, 2)) - mp.power(m, 2) * mp.power(muF * mp.power(hbar, 2) + m * mp.power(vR, 2), 2)
-rhs_part2 = mp.mpf('4.0') * mp.power(m, 2) * mp.power(vR, 4) / mp.power(hbar, 4) * (mp.power(muF, 2) - mp.power(a0, 2))
-rhs_part3 = mp.mpf('4.0') * m * mp.power(vR, 2) * mp.power(a0, 2) / mp.power(hbar, 4) * (muF * mp.power(hbar, 2) + m * mp.power(vR, 2))
-rhs_part4 = mp.power(a0, 4)
+def term1(rho):
+    leading = vR**2 * rho**2 + a0**2
+    return rho * c1(rho)**2 * leading**(-mp.mpf('1.5')) / dg1(rho)
+# Compute LHS using numerical differentiation
+deriv_term0 = mp.diff(term0, rho0)
+deriv_term1 = mp.diff(term1, rho1)
 
-rhs = rhs_part1 * mp.power(rhs_part2 + rhs_part3 + rhs_part4, 3)
+LHS = (mp.mpf('1.0') / dg0(rho0)) * deriv_term0 - (mp.mpf('1.0') / dg1(rho1)) * deriv_term1
 
-df = lhs - rhs
+leading_rho0=vR**2*rho0**2+a0**2
+leading_rho1=vR**2*rho1**2+a0**2
 
-print("LHS:", lhs)
-print("Difference (df):", df)
+B4a=5/4*a0**2*hbar**4*(rho0**2*leading_rho0**(-5/2)-vR**2*rho0**4*leading_rho0**(-7/2) )/(hbar**2/m+vR**2*leading_rho0**(-1/2))**2\
+    -5/4*a0**2*hbar**4*(rho1**2*leading_rho1**(-5/2)-vR**2*rho1**4*leading_rho1**(-7/2))/(hbar**2/m-vR**2*leading_rho1**(-1/2))**2
+
+B4b=1/4*a0**2*hbar**4*(hbar**2/m*rho1**2*leading_rho1**(-5/2)+vR**4*rho1**4*leading_rho1**(-4)-vR**2*rho1**2*leading_rho1**(-3) )/(hbar**2/m-vR**2*leading_rho1**(-1/2))**3\
+     -1/4*a0**2*hbar**4*(hbar**2/m*rho0**2*leading_rho0**(-5/2)+vR**2*rho0**2*leading_rho0**(-3)-vR**4*rho0**4*leading_rho0**(-4) )/(hbar**2/m+vR**2*leading_rho0**(-1/2) )**3
+
+one_2m=1/(2*m)
+
+
+B4b1_up=1/4*a0**2*hbar**4*(hbar**2/m*rho1**2*(hbar**2*one_2m*rho1**2-muF)**3+vR**4*rho1**4-vR**2*rho1**2*(hbar**2*one_2m*rho1**2-muF)**2 )
+
+B4b1_down=(hbar**2/m*(hbar**2*one_2m*rho1**2-muF)-vR**2)**3*(hbar**2*one_2m*rho1**2-muF)**5
+
+B4b1=B4b1_up/B4b1_down
+
+B4b2_up=1/4*a0**2*hbar**4*( hbar**2/m*rho0**2*(muF-hbar**2*one_2m*rho0**2)**3+vR**2*rho0**2*(muF-hbar**2*one_2m*rho0**2)**2-vR**4*rho0**4)
+
+B4b2_down=(hbar**2/m*(muF-hbar**2*one_2m*rho0**2)+vR**2)**3*(muF-hbar**2*one_2m*rho0**2)**5
+
+B4b2=B4b2_up/B4b2_down
+
+rhs=B4b1-B4b2
+df=B4b-rhs
+print(df)
