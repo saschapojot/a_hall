@@ -86,3 +86,32 @@ with open("B5_down_num_poly.txt","w") as fptr:
     fptr.write(latex(B5_down_num_poly))
 
 
+#compute partial fraction
+ma_val=symbols("m_a", real=True)
+frac=B5_up_num_poly/B5_down_num_poly*I*1/ma**2*pi*a0*m**4*vR**4
+frac=frac.subs(eps,1/ma_val)
+# 1. Define a dummy variable for the substitution
+u = symbols("u", real=True)
+
+# 2. The composite factor you want in the denominator
+factor_expr = a0**2 * hbar**2 + 2 * m * muF * vR**2
+
+# 3. Solve factor_expr = u for one of the variables, e.g., muF
+# u = a0**2 * hbar**2 + 2 * m * muF * vR**2  =>  muF = (u - a0**2 * hbar**2) / (2 * m * vR**2)
+muF_sub = (u - a0**2 * hbar**2) / (2 * m * vR**2)
+
+
+# 4. Substitute muF with the u-expression in your fraction
+frac_u = frac.subs(muF, muF_sub)
+# Cancel out common terms to ensure it's a clean rational function in u
+frac_u = cancel(frac_u)
+# 5. Perform partial fraction decomposition with respect to the dummy variable u
+partial_frac_u = apart(frac_u, u)
+
+# 6. Substitute the original expression back in place of u
+partial_frac_B5 = partial_frac_u.subs(u, factor_expr)
+pprint(partial_frac_B5)
+with open("partial_frac_B5.txt","w") as fptr:
+    fptr.write(latex(partial_frac_B5))
+
+
