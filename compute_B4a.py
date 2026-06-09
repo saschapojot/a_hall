@@ -93,7 +93,7 @@ B4a=Rational(5,4)*a0**2*hbar**4*B4a_up/B4a_down
 # 1. Define a dummy variable for the substitution
 u = symbols("u", real=True)
 ma_val=symbols("m_a", real=True)
-# 2. The composite factor you want in the denominator (F1)
+# 2. The composite factor you want in the denominator
 factor_expr = a0**2 * hbar**2 + 2 * m * muF * vR**2
 
 # 3. Solve factor_expr = u for muF

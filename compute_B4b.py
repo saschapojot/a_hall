@@ -83,3 +83,32 @@ B4a_down_num_poly=B4b_down_sym_together_replaced_num
 with open("B4a_down_num_poly.txt","w") as fptr:
     fptr.write(latex(B4a_down_num_poly))
 
+
+B4b_up=1/B4b_up_sym_together_replaced_den*B4b_up_num_prefactor*B4b_up_num_poly
+
+
+B4b=a0**4*m**3*hbar**4*B4b_up_num_poly/B4a_down_num_poly
+
+# --- Partial Fraction Decomposition ---
+# 1. Define a dummy variable for the substitution
+u = symbols("u", real=True)
+ma_val=symbols("m_a", real=True)
+# 2. The composite factor you want in the denominator
+factor_expr = a0**2 * hbar**2 + 2 * m * muF * vR**2
+
+# 3. Solve factor_expr = u for muF
+muF_sub = (u - a0**2 * hbar**2) / (2 * m * vR**2)
+B4b_with_factor=I*1/ma**2*Rational(1,4)*pi*a0*vR**2/hbar**2*B4b
+B4b_with_factor=B4b_with_factor.subs(ma,ma_val)
+# 4. Substitute muF with the u-expression in your fraction
+B4b_with_factor_u = B4b_with_factor.subs(muF, muF_sub)
+# Cancel out common terms to ensure it's a clean rational function in u
+B4b_with_factor_u = cancel(B4b_with_factor_u)
+# 5. Perform partial fraction decomposition with respect to the dummy variable u.
+# This will automatically separate terms with `u` and `u * hbar**2 + m**2 * vR**4`
+partial_frac_u = apart(B4b_with_factor_u, u)
+
+# 6. Substitute the original expression back in place of u
+partial_frac_B4b_full = partial_frac_u.subs(u, factor_expr)
+with open("partial_frac_B4b_full.txt","w") as fptr:
+    fptr.write(latex(partial_frac_B4b_full))
