@@ -57,3 +57,24 @@ B3_term_up_sym_together_replaced=B3_term_up_sym_together.subs({
 })
 B3_term_up_sym_together_replaced_num,B3_term_up_sym_together_replaced_den=factor(B3_term_up_sym_together_replaced).as_numer_denom()
 
+B3_term_up_num_factor_list=B3_term_up_sym_together_replaced_num.as_ordered_factors()
+B3_term_up_num_prefactor=Mul(*B3_term_up_num_factor_list[0:4])
+B3_term_up_num_poly=Mul(*B3_term_up_num_factor_list[4:])
+with open("B3_term_up_num_poly.txt","w") as fptr:
+    fptr.write(latex(B3_term_up_num_poly))
+
+#down
+B3_term_down_expanded=expand(B3_term_down)
+B3_term_down_expanded_R=expand(B3_term_down_expanded.subs({rho0: sqrt(R0), rho1: sqrt(R1)}))
+B3_term_down_sym,_=symmetrize(B3_term_down_expanded_R,R0,R1)
+B3_term_down_together=together(B3_term_down_sym)
+B3_term_down_together_replaced=B3_term_down_together.subs({
+    R0 + R1: val_sum,
+    R0 * R1: val_prod
+})
+B3_term_down_together_replaced_num,B3_term_down_together_replaced_den=factor(B3_term_down_together_replaced).as_numer_denom()
+B3_term_down_factor_list=B3_term_down_together_replaced_num.as_ordered_factors()
+B3_term_down_num_prefactor=Mul(*B3_term_down_factor_list[0:2])
+B3_term_down_num_poly=Mul(*B3_term_down_factor_list[2:])
+with open("B3_term_down_num_poly.txt","w") as fptr:
+    fptr.write(latex(B3_term_down_num_poly))
