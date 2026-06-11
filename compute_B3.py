@@ -62,7 +62,6 @@ B3_term_up_num_prefactor=Mul(*B3_term_up_num_factor_list[0:4])
 B3_term_up_num_poly=Mul(*B3_term_up_num_factor_list[4:])
 with open("B3_term_up_num_poly.txt","w") as fptr:
     fptr.write(latex(B3_term_up_num_poly))
-
 #down
 B3_term_down_expanded=expand(B3_term_down)
 B3_term_down_expanded_R=expand(B3_term_down_expanded.subs({rho0: sqrt(R0), rho1: sqrt(R1)}))
@@ -78,3 +77,29 @@ B3_term_down_num_prefactor=Mul(*B3_term_down_factor_list[0:2])
 B3_term_down_num_poly=Mul(*B3_term_down_factor_list[2:])
 with open("B3_term_down_num_poly.txt","w") as fptr:
     fptr.write(latex(B3_term_down_num_poly))
+
+B3=I*1/ma**2*3*pi*a0**3*m**3*hbar**2*vR**2*B3_term_up_num_poly/B3_term_down_num_poly
+
+# --- Partial Fraction Decomposition ---
+# 1. Define a dummy variable for the substitution
+u = symbols("u", real=True)
+ma_val=symbols("m_a", real=True)
+B3_frac=B3.subs(eps,1/ma_val)
+# 2. The composite factor you want in the denominator
+factor_expr = a0**2 * hbar**2 + 2 * m * muF * vR**2
+
+# 3. Solve factor_expr = u for muF
+muF_sub = (u - a0**2 * hbar**2) / (2 * m * vR**2)
+
+# 4. Substitute muF with the u-expression in your fraction
+B3_frac_u = B3_frac.subs(muF, muF_sub)
+# Cancel out common terms to ensure it's a clean rational function in u
+B3_frac_u = cancel(B3_frac_u)
+
+# 5. Perform partial fraction decomposition with respect to the dummy variable u
+B3_partial_frac_u = apart(B3_frac_u, u)
+
+B3_partial_frac=B3_partial_frac_u.subs(u, factor_expr)
+
+with open("B3_partial_frac.txt","w") as fptr:
+    fptr.write(latex(B3_partial_frac))
